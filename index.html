@@ -12,56 +12,56 @@
 </head>
 <body>
   <div class="app">
-    <!-- ... your full app structure unchanged ... -->
-    <!-- All HTML inside <body> remains same as what you posted -->
+    <!-- Your app UI goes here -->
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js"></script>
-
-  <!-- Firebase Init + Service Worker Registration -->
-  <script>
-    // Replace with your own Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
-
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(function (registration) {
-          console.log('Service Worker registered:', registration);
-
-          // Use service worker for messaging
-          messaging.useServiceWorker(registration);
-
-          // Request notification permission
-          Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-              messaging.getToken({
-                vapidKey: 'YOUR_WEB_PUSH_CERTIFICATE_KEY' // from Firebase project settings
-              }).then(token => {
-                console.log('FCM Token:', token);
-                // TODO: Send this token to your backend to schedule notifications
-              });
-            }
-          });
-        })
-        .catch(function (err) {
-          console.error('Service Worker registration failed:', err);
-        });
-    }
-  </script>
+  <!-- Firebase Core + Messaging SDK -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging-compat.js"></script>
 
   <!-- Your App Logic -->
   <script src="app.js"></script>
+
+  <!-- Firebase Init + Notifications -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzS3_2UlZSDTn3h2rCHqVRSp5rgBnDv3Q",
+        authDomain: "medication-reminder-e45b4.firebaseapp.com",
+        projectId: "medication-reminder-e45b4",
+        storageBucket: "medication-reminder-e45b4.firebasestorage.app",
+        messagingSenderId: "111945945049",
+        appId: "1:111945945049:web:0fcc5ae55556b05dea13c8",
+        measurementId: "G-QYJZS3FH8K"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const messaging = firebase.messaging();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            console.log('✅ Service Worker registered');
+
+            Notification.requestPermission().then(permission => {
+              if (permission === 'granted') {
+                messaging.getToken({
+                  vapidKey: 'BBIpzRE2hP7UKciVPWyXwX9NRxF06oRlPSxZbEChGZhnZ6qjje8UGqLGqQcv6dSCkvsGbbl_VD4E_Anzu_qRCGo'
+                }).then(token => {
+                  console.log('📲 FCM Token:', token);
+                }).catch(err => {
+                  console.error('❌ Error getting token:', err);
+                });
+              } else {
+                console.warn('🔕 Notifications not granted');
+              }
+            });
+          })
+          .catch(err => {
+            console.error('❌ Service Worker registration failed:', err);
+          });
+      }
+    });
+  </script>
 </body>
 </html>
