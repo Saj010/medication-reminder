@@ -1282,7 +1282,49 @@ class MedicationReminderApp {
     }
 }
 
-// Initialize app when DOM is loaded
+// Your Firebase config (replace with your own details from Firebase Console)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// DOM Content Loaded: initialize app and register service worker
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new MedicationReminderApp();
+  window.app = new MedicationReminderApp();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(registration => {
+        console.log('✅ Service Worker registered:', registration);
+
+        // Request Notification Permission
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            messaging.getToken({
+              vapidKey: 'YOUR_WEB_PUSH_CERTIFICATE_KEY'
+            }).then(currentToken => {
+              if (currentToken) {
+                console.log('📲 FCM Token:', currentToken);
+                // TODO: send token to your backend to save for push scheduling
+              } else {
+                console.warn('⚠️ No registration token available. Request permission to generate one.');
+              }
+            }).catch(err => {
+              console.error('🔴 Error retrieving token:', err);
+            });
+          } else {
+            console.warn('🔕 Notification permission not granted');
+          }
+        });
+      })
+      .catch(err => {
+        console.error('❌ Service Worker registration failed:', err);
+      });
+  }
 });
